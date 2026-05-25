@@ -1,0 +1,13 @@
+{
+  "command":"Run.Locate,312",
+  "command_internal":"{\"name\":\"Run.Locate\",\"job\":\"312\",\"match\":\"\"}",
+  "dialect":"csv",
+  "id":"23100027-000259B00007178.014T-63-1",
+  "model":"PLOC2D",
+  "protocol":"native",
+  "reply":"Run.Locate.Ok, 312, 1, 27, 825.874, -175.956, 3.372, -46.411, -0.254, -179.828, 1.0, 17.0, 9407, 1, 312",
+  "reply_internal":"{\"name\":\"Run.Locate.Ok\",\"job\":312,\"match\":1,\"matches\":27,\"x\":825.87395305206,\"y\":-175.95629367773,\"z\":3.3722381125221,\"r1\":-179.8281531927,\"r2\":-0.25439660438685,\"r3\":-46.410761387642,\"scale\":1.0,\"score\":17,\"time\":9407,\"exposure\":1,\"identified\":\"312\"}",
+  "rotation_convention":"izyx",
+  "source":"robot",
+  "version":"5.2.1"
+}

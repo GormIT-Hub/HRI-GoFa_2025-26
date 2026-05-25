@@ -1,0 +1,124 @@
+MODULE Socket_Communication
+    VAR socketdev server_socket;
+    VAR socketdev client_socket;
+    VAR string received_data;
+    VAR string feedback_data;
+    VAR pos target_pos;
+    VAR jointtarget current_joints;
+    VAR robtarget current_pos;
+    VAR bool ok;
+
+    VAR num peek_value;
+    VAR string client_ip;
+    VAR bool connected:=FALSE;
+    
+    !PERS socketdev g_client_socket;
+    PERS pos  g_offset;
+    PERS bool g_newCmd;
+    PERS bool g_requestDrop := FALSE;
+!    PERS bool g_sesek;
+
+    PROC main()
+
+        Connect_PC;
+
+        ! --- handshake ---
+        SocketSend client_socket \Str:="ACK";
+        connected:=TRUE;
+
+
+        WHILE TRUE DO
+            
+                IF g_requestDrop THEN
+                    SocketSend client_socket \Str:="DROP";
+                    g_requestDrop := FALSE;
+                ENDIF
+    
+            ! --- peek ---
+            peek_value := SocketPeek(client_socket);
+
+            IF peek_value > 0 THEN
+                SocketReceive client_socket \Str:=received_data;
+
+                IF received_data = "EXIT" THEN
+                    GOTO EndOfProgram;
+                ENDIF
+                
+                ok := StrToVal(received_data, target_pos);
+
+                IF ok THEN
+
+                    g_offset := target_pos;
+                    g_newCmd := TRUE;
+                    
+                    ! send ok to Python
+                    SocketSend client_socket \Str:="OK";
+                ELSE
+                    SocketSend client_socket \Str:="ERROR: Bad format, expected [x,y,z]";
+                ENDIF
+!                ENDIF
+            ENDIF
+
+        ENDWHILE
+
+        EndOfProgram:
+        SocketClose client_socket;
+        SocketClose server_socket;
+
+    ERROR
+
+        ! --- robust error handling ---
+        IF ERRNO = ERR_SOCK_TIMEOUT THEN
+            RETRY;
+
+        ELSEIF ERRNO = ERR_SOCK_CLOSED THEN
+            server_recover;
+            RETRY;
+
+        ELSE
+            ! unknown error
+        ENDIF
+        ! ------------------------------------
+
+    ENDPROC
+
+
+    PROC Connect_PC()
+
+        SocketCreate server_socket;
+        SocketBind server_socket, "192.168.125.1", 5000;
+        SocketListen server_socket;
+
+        !SocketAccept server_socket, client_socket;
+        SocketAccept server_socket, client_socket\ClientAddress:=client_ip;
+        !SocketAccept server_socket, g_client_socket\ClientAddress:=client_ip;
+
+    ENDPROC
+
+
+    ! --- robust reconnect ---
+    PROC server_recover()
+
+        connected:=FALSE;
+
+        SocketClose server_socket;
+        SocketClose client_socket;
+
+        SocketCreate server_socket;
+        SocketBind server_socket, "192.168.125.1", 5000;
+        SocketListen server_socket;
+
+        SocketAccept server_socket, client_socket\ClientAddress:=client_ip;
+
+        connected:=TRUE;
+
+        ERROR
+            IF ERRNO=ERR_SOCK_TIMEOUT THEN
+                RETRY;
+            ELSEIF ERRNO=ERR_SOCK_CLOSED THEN
+                RETURN;
+            ENDIF
+
+    ENDPROC
+
+ENDMODULE

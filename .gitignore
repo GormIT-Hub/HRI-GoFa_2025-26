@@ -1,0 +1,12 @@
+.DS_Store
+myenv/
+__pycache__/
+
+*.pt
+*.pth
+*.onnx
+*.weights
+*.h5
+
+runs/
+checkpoints/

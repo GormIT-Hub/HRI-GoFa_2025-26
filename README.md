@@ -25,4 +25,9 @@ These steps are only required if you are not running the program on a computer i
 2. Run `ftp_server.py` script to enable image acquisiton
 3. Open a separate terminal window and run `execute.py` to start the program.
 
+### Path to the scripts if running localy on designated computer in the RoboLab:
+
+`D:\VAJE\HRI\2526\Monday\fruityBrat\ftp_server.py`
+`D:\VAJE\HRI\2526\Monday\fruityBrat\execute.py`
+
 
